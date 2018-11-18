@@ -80,6 +80,8 @@ public class creatClient {
         upjpanel.add(txt_ip);
         upjpanel.add(new JLabel("Port"));
         upjpanel.add(txt_port);
+        upjpanel.add(new JLabel("Name"));
+        upjpanel.add(txt_name);
         upjpanel.add(btn_start);
         upjpanel.add(btn_stop);
         upjpanel.setBorder(new TitledBorder("Connection info"));
@@ -168,16 +170,11 @@ public class creatClient {
     /*连接*/
     public void send() {
         if (!isConnected) {
-            JOptionPane.showMessageDialog(frame, "还没有连接服务器，无法发送消息！", "错误",
+            JOptionPane.showMessageDialog(frame, "还没有连接服务器！", "错误",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
         String message = txt_mes.getText().trim();
-        if (message == null || message.equals("")) {
-            JOptionPane.showMessageDialog(frame, "消息不能为空！", "错误",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
         sendmes(frame.getTitle() + "@" + "ALL" + "@" + message);
         txt_mes.setText(null);
     }
@@ -278,7 +275,7 @@ public class creatClient {
                         contentArea.append(stringTokenizer.nextToken()
                                 + stringTokenizer.nextToken() + "\r\n");
                         closGet();// 被动的关闭连接
-                        JOptionPane.showMessageDialog(frame, "服务器缓冲区已满！", "错误",
+                        JOptionPane.showMessageDialog(frame, "服务器已满！", "错误",
                                 JOptionPane.ERROR_MESSAGE);
                         return;// 结束线程
                     } else {// 普通消息
