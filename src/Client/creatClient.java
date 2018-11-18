@@ -8,6 +8,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,7 +55,7 @@ public class creatClient {
         contentArea = new JTextArea();
         contentArea.setEditable(false);
         txt_ip = new JTextField("127.0.0.1");
-        txt_name = new JTextField("xiaohua");
+        txt_name = new JTextField("lijie");
         txt_mes = new JTextField();
         txt_port = new JTextField("10086");
         btn_send = new JButton("Send");
@@ -91,21 +93,23 @@ public class creatClient {
         frame.setLocation((screen_width - frame.getWidth()) / 2,
                 (screen_height - frame.getHeight()) / 2);
         frame.setVisible(true);
-        btn_send.addActionListener((new ActionListener() {
-            @Override
+        txt_mes.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                send();
+            }
+        });
+
+        // 单击发送按钮时事件
+        btn_send.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 send();
             }
-        }));
+        });
+
+        // 单击连接按钮时事件
         btn_start.addActionListener(new ActionListener() {
-            @Override
             public void actionPerformed(ActionEvent e) {
                 int port;
-                if (isConnected) {
-                    JOptionPane.showMessageDialog(frame, "已处于连接上状态，不要重复连接!",
-                            "错误", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
                 try {
                     try {
                         port = Integer.parseInt(txt_port.getText().trim());
@@ -129,7 +133,39 @@ public class creatClient {
                 }
             }
         });
+
+        // 单击断开按钮时事件
+        btn_stop.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (!isConnected) {
+                    JOptionPane.showMessageDialog(frame, "已处于断开状态，不要重复断开!",
+                            "错误", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                try {
+                    boolean flag = closeConnection();// 断开连接
+                    if (flag == false) {
+                        throw new Exception("断开连接发生异常！");
+                    }
+                    JOptionPane.showMessageDialog(frame, "成功断开!");
+                } catch (Exception exc) {
+                    JOptionPane.showMessageDialog(frame, exc.getMessage(),
+                            "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // 关闭窗口时事件
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                if (isConnected) {
+                    closeConnection();// 关闭连接
+                }
+                System.exit(0);// 退出程序
+            }
+        });
     }
+    /*连接*/
     public void send() {
         if (!isConnected) {
             JOptionPane.showMessageDialog(frame, "还没有连接服务器，无法发送消息！", "错误",
@@ -203,62 +239,56 @@ public class creatClient {
             String message=null;
             while(!this.isInterrupted()){
                 try {
-                    message=reader.readLine();
-                    StringTokenizer tmp=new StringTokenizer(message,"/@");
-                    String actioncmd=tmp.nextToken();
-                    switch (actioncmd){
-                        case "CLOSE":{//服务器关闭
-                            contentArea.append("服务器已经关闭！\r\n");
-                            closGet();
-                            return;
+                    message = reader.readLine();
+                    StringTokenizer stringTokenizer = new StringTokenizer(
+                            message, "/@");
+                    String command = stringTokenizer.nextToken();// 命令
+                    if (command.equals("CLOSE"))// 服务器已关闭命令
+                    {
+                        contentArea.append("服务器已关闭!\r\n");
+                        closGet();// 被动的关闭连接
+                        return;// 结束线程
+                    } else if (command.equals("ADD")) {// 有用户上线更新在线列表
+                        String username = "";
+                        String userIp = "";
+                        if ((username = stringTokenizer.nextToken()) != null
+                                && (userIp = stringTokenizer.nextToken()) != null) {
+                            User user = new User(username, userIp);
+                            onlineUsers.put(username, user);
+                            listModel.addElement(username);
                         }
-                        case "ADD":{//新用户上线
-                            String userip=null;
-                            String username=null;
-                            if((username==tmp.nextToken())&&(userip==tmp.nextToken())){
-                                User user=new User(username,userip);
-                                onlineUsers.put(username,user);
-                                listModel.addElement(username);
-                            }
-                            break;
+                    } else if (command.equals("DELETE")) {// 有用户下线更新在线列表
+                        String username = stringTokenizer.nextToken();
+                        User user = (User) onlineUsers.get(username);
+                        onlineUsers.remove(user);
+                        listModel.removeElement(username);
+                    } else if (command.equals("USERLIST")) {// 加载在线用户列表
+                        int size = Integer
+                                .parseInt(stringTokenizer.nextToken());
+                        String username = null;
+                        String userIp = null;
+                        for (int i = 0; i < size; i++) {
+                            username = stringTokenizer.nextToken();
+                            userIp = stringTokenizer.nextToken();
+                            User user = new User(username, userIp);
+                            onlineUsers.put(username, user);
+                            listModel.addElement(username);
                         }
-                        case "DELETE":{//删除用户
-                            String username = tmp.nextToken();
-                            User user = (User) onlineUsers.get(username);
-                            onlineUsers.remove(user);
-                            listModel.removeElement(username);
-                            break;
-                        }
-                        case"USERLIST":{//加载用户列表
-                            int size=Integer.parseInt(tmp.nextToken());
-                            String userip=null;
-                            String username=null;
-                            for(int i=0;i<size;i++){//循环读取
-                                username=tmp.nextToken();
-                                userip=tmp.nextToken();
-                                User user=new User(username,userip);
-                                onlineUsers.put(username,user);
-                                listModel.addElement(username);
-                            }
-                            break;
-                        }
-                        case "MAX":{
-                            contentArea.append(tmp.nextToken()+tmp.nextToken()+"\r\n");
-                            closGet();
-                            JOptionPane.showMessageDialog(frame, "服务器缓冲区已满！", "错误",
-                                    JOptionPane.ERROR_MESSAGE);
-                            return;
-                        }
-                        default:{
-                            contentArea.append(message+"\r\n");
-                            break;
-                        }
+                    } else if (command.equals("MAX")) {// 人数已达上限
+                        contentArea.append(stringTokenizer.nextToken()
+                                + stringTokenizer.nextToken() + "\r\n");
+                        closGet();// 被动的关闭连接
+                        JOptionPane.showMessageDialog(frame, "服务器缓冲区已满！", "错误",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;// 结束线程
+                    } else {// 普通消息
+                        contentArea.append(message + "\r\n");
                     }
-                } catch (IOException e) {
+                    } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
             }
         }
 
     }
-}
