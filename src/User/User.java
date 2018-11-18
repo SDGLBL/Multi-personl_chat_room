@@ -4,10 +4,10 @@ public class User {
     private String name;
     private String password;
     private String ip;
-    public  User(String name,String ip,String password){
+    public  User(String name,String ip){
         this.name=name;
         this.ip=ip;
-        this.password=password;
+       /* this.password=password;*/
     }
     public String  getName(){
         return name;
