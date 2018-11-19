@@ -110,7 +110,7 @@ public class creatServer {
             public void actionPerformed(ActionEvent e) {
                 if (isStart) {
                     JOptionPane.showMessageDialog(frame, "Server has been started",
-                            "Erro", JOptionPane.ERROR_MESSAGE);
+                            "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 int max= Integer.parseInt(txt_max.getText());
@@ -134,7 +134,7 @@ public class creatServer {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!isStart) {
-                    JOptionPane.showMessageDialog(frame, "The server didn`t start", "Eorr",
+                    JOptionPane.showMessageDialog(frame, "The server didn`t start", "Error",
                             JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -147,7 +147,7 @@ public class creatServer {
                     contentArea.append("Server has been stoped!\r\n");
                     JOptionPane.showMessageDialog(frame, "Server has been stoped!！");
                 } catch (Exception exc) {
-                    JOptionPane.showMessageDialog(frame, "stop eorr！", "Eorr",
+                    JOptionPane.showMessageDialog(frame, "stop error！", "Error",
                             JOptionPane.ERROR_MESSAGE);
                 }
             }
@@ -254,7 +254,7 @@ public class creatServer {
                         StringTokenizer st=new StringTokenizer(info,"@");
                         User user=new User(st.nextToken(),st.nextToken());
                         //返还信息
-                        writer.println("MAX@Server：Sorry"+user.getName()+"the server had connected 30 users.");
+                        writer.println("MAX@Server：Sorry "+user.getName()+" the server had connected "+clients.size()+" users.");
                         //释放资源
                         writer.flush();
                         writer.close();
@@ -297,7 +297,7 @@ public class creatServer {
                 StringTokenizer st=new StringTokenizer(info,"@");//分割字符串
                 user=new User(st.nextToken(),st.nextToken());
                 //返回连接成功消息
-                writer.println(user.getName()+user.getIp()+"succesed connect server");
+                writer.println(user.getName()+user.getIp()+" succesed connect server");
                 writer.flush();
                 //反馈当前在线用户信息
                 if(clients.size()>0){
@@ -310,7 +310,7 @@ public class creatServer {
                 }
                 //告知当前在线用户xxx上线
                 for(int i=0;i<clients.size();i++){
-                    clients.get(i).getWriter().println("ADD@"+user.getName()+user.getIp());
+                    clients.get(i).getWriter().println("ADD@"+user.getName()+" "+user.getIp()+".");
                     clients.get(i).getWriter().flush();
                 }
             } catch (IOException e) {

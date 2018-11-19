@@ -93,11 +93,12 @@ public class creatClient {
         frame.setVisible(true);
         //启动直接自动连接
         int port;
+        if (isConnected) {
+            JOptionPane.showMessageDialog(frame, "已处于连接上状态，不要重复连接!",
+                    "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         try {
-            if(onlineUsers.containsKey(txt_name)){
-                JOptionPane.showMessageDialog(frame,"一个用户只能登陆一次",
-                        "错误", JOptionPane.ERROR_MESSAGE);
-            }
             try {
                 port = Integer.parseInt(txt_port.getText().trim());
             } catch (NumberFormatException e2) {
@@ -135,6 +136,11 @@ public class creatClient {
         // 单击连接按钮时事件
         btn_start.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (isConnected) {
+                    JOptionPane.showMessageDialog(frame, "已处于连接上状态，不要重复连接!",
+                            "错误", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 int port;
                 try {
                     if(onlineUsers.containsKey(txt_name.getText().trim())){
@@ -156,8 +162,6 @@ public class creatClient {
                         throw new Exception("与服务器连接失败!");
                     }
                     frame.setTitle(name);
-                    btn_start.setEnabled(false);//成功连接后取消关闭连接请求键
-                    btn_stop.setEnabled(true);
                     JOptionPane.showMessageDialog(frame, "成功连接!");
                 } catch (Exception exc) {
                     JOptionPane.showMessageDialog(frame, exc.getMessage(),
@@ -179,8 +183,6 @@ public class creatClient {
                     if (flag == false) {
                         throw new Exception("断开连接发生异常！");
                     }
-                    btn_start.setEnabled(true);
-                    btn_stop.setEnabled(false);
                     JOptionPane.showMessageDialog(frame, "成功断开!");
                 } catch (Exception exc) {
                     JOptionPane.showMessageDialog(frame, exc.getMessage(),
@@ -236,7 +238,7 @@ public class creatClient {
     public synchronized boolean closeConnection(){
         try{
             sendmes("CLOSE");
-            messageThread.interrupt();
+            messageThread.stop();
             reader.close();
             writer.close();
             socket.close();
@@ -266,12 +268,12 @@ public class creatClient {
         }
         public void run(){
             String message=null;
-            while(!this.isInterrupted()){
+            while(true){
                 try {
                     message = reader.readLine();
-                    StringTokenizer stringTokenizer = new StringTokenizer(
-                            message, "/@");
+                    StringTokenizer stringTokenizer = new StringTokenizer(message,"/@");
                     String command = stringTokenizer.nextToken();// 命令
+                    System.out.println(command);
                     if (command.equals("CLOSE"))// 服务器已关闭命令
                     {
                         contentArea.append("服务器已关闭!\r\n");
@@ -304,8 +306,7 @@ public class creatClient {
                             listModel.addElement(username);
                         }
                     } else if (command.equals("MAX")) {// 人数已达上限
-                        contentArea.append(stringTokenizer.nextToken()
-                                + stringTokenizer.nextToken() + "\r\n");
+                        contentArea.append(stringTokenizer.nextToken() + "\r\n");
                         closGet();// 被动的关闭连接
                         JOptionPane.showMessageDialog(frame, "服务器已满！", "错误",
                                 JOptionPane.ERROR_MESSAGE);
