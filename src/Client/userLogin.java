@@ -6,6 +6,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 
 public class userLogin {
     private JFrame frame;
@@ -26,7 +30,7 @@ public class userLogin {
     public userLogin(){
         next=false;
         confirm=false;
-        frame=new JFrame();
+        frame=new JFrame("登陆器");
         frame.setLayout(new BorderLayout());
         txt_name=new JTextField();
         txt_name.setColumns(1);
@@ -58,7 +62,14 @@ public class userLogin {
                 allInfo=new Info(txt_ip.getText().trim(),txt_port.getText().trim(),txt_name.getText().trim());
                 sendConfirm();
                 next=true;
+                new creatClient(allInfo);
                 frame.setVisible(false);
+            }
+        });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
             }
         });
     }

@@ -46,13 +46,6 @@ public class creatClient {
     private MessageThread messageThread;
     private boolean isConnected = false;
     private Map<String,User> onlineUsers=new HashMap<String, User>();
-
-    public static void main(String[] args) {
-        userLogin login=new userLogin();
-        while(!login.next){}
-        Info allInfo=login.getAllInfo();
-        new creatClient(allInfo);
-    }
     public creatClient(Info allInfo) {//构造函数
         frame = new JFrame("Client");
         contentArea = new JTextArea();
@@ -98,6 +91,34 @@ public class creatClient {
         frame.setLocation((screen_width - frame.getWidth()) / 2,
                 (screen_height - frame.getHeight()) / 2);
         frame.setVisible(true);
+        //启动直接自动连接
+        int port;
+        try {
+            if(onlineUsers.containsKey(txt_name)){
+                JOptionPane.showMessageDialog(frame,"一个用户只能登陆一次",
+                        "错误", JOptionPane.ERROR_MESSAGE);
+            }
+            try {
+                port = Integer.parseInt(txt_port.getText().trim());
+            } catch (NumberFormatException e2) {
+                throw new Exception("端口号不符合要求!端口为整数!");
+            }
+            String hostIp = txt_ip.getText().trim();
+            String name = txt_name.getText().trim();
+            if (name.equals("") || hostIp.equals("")) {
+                throw new Exception("姓名、服务器IP不能为空!");
+            }
+            boolean flag = connectServer(port, hostIp, name);
+            if (flag == false) {
+                throw new Exception("与服务器连接失败!");
+            }
+            frame.setTitle(name);
+            JOptionPane.showMessageDialog(frame, "成功连接!");
+        } catch (Exception exc) {
+            JOptionPane.showMessageDialog(frame, exc.getMessage(),
+                    "错误", JOptionPane.ERROR_MESSAGE);
+        }
+        //
         txt_mes.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 send();
