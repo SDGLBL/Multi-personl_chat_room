@@ -137,7 +137,7 @@ public class creatClient {
             public void actionPerformed(ActionEvent e) {
                 int port;
                 try {
-                    if(onlineUsers.containsKey(txt_name)){
+                    if(onlineUsers.containsKey(txt_name.getText().trim())){
                         JOptionPane.showMessageDialog(frame,"一个用户只能登陆一次",
                                 "错误", JOptionPane.ERROR_MESSAGE);
                     }
@@ -156,6 +156,8 @@ public class creatClient {
                         throw new Exception("与服务器连接失败!");
                     }
                     frame.setTitle(name);
+                    btn_start.setEnabled(false);//成功连接后取消关闭连接请求键
+                    btn_stop.setEnabled(true);
                     JOptionPane.showMessageDialog(frame, "成功连接!");
                 } catch (Exception exc) {
                     JOptionPane.showMessageDialog(frame, exc.getMessage(),
@@ -177,6 +179,8 @@ public class creatClient {
                     if (flag == false) {
                         throw new Exception("断开连接发生异常！");
                     }
+                    btn_start.setEnabled(true);
+                    btn_stop.setEnabled(false);
                     JOptionPane.showMessageDialog(frame, "成功断开!");
                 } catch (Exception exc) {
                     JOptionPane.showMessageDialog(frame, exc.getMessage(),
