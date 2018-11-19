@@ -2,6 +2,7 @@ package Client;
 
 import Server.creatServer;
 import User.User;
+import basicInfo.Info;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -47,17 +48,19 @@ public class creatClient {
     private Map<String,User> onlineUsers=new HashMap<String, User>();
 
     public static void main(String[] args) {
-        new creatClient();
+        userLogin login=new userLogin();
+        while(!login.next){}
+        Info allInfo=login.getAllInfo();
+        new creatClient(allInfo);
     }
-
-    public creatClient() {//构造函数
+    public creatClient(Info allInfo) {//构造函数
         frame = new JFrame("Client");
         contentArea = new JTextArea();
         contentArea.setEditable(false);
-        txt_ip = new JTextField("127.0.0.1");
-        txt_name = new JTextField("lijie");
+        txt_ip = new JTextField(allInfo.getIp());
+        txt_name = new JTextField(allInfo.getName());
+        txt_port = new JTextField(allInfo.getPort());
         txt_mes = new JTextField();
-        txt_port = new JTextField("10086");
         btn_send = new JButton("Send");
         btn_start = new JButton("Link");
         btn_stop = new JButton("Stop");
@@ -113,6 +116,10 @@ public class creatClient {
             public void actionPerformed(ActionEvent e) {
                 int port;
                 try {
+                    if(onlineUsers.containsKey(txt_name)){
+                        JOptionPane.showMessageDialog(frame,"一个用户只能登陆一次",
+                                "错误", JOptionPane.ERROR_MESSAGE);
+                    }
                     try {
                         port = Integer.parseInt(txt_port.getText().trim());
                     } catch (NumberFormatException e2) {
@@ -287,5 +294,4 @@ public class creatClient {
             }
             }
         }
-
     }

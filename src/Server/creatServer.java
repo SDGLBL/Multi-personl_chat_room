@@ -153,6 +153,7 @@ public class creatServer {
             }
         });
     }
+
     //启动服务器
     public void startServer(int max,int port) throws BindException {
         try {
@@ -170,12 +171,12 @@ public class creatServer {
             throw new BindException("Start server error.");
         }
     }
+    //关闭服务器
     public void closeServer(){
         try {
             if (serverThread != null)
-                serverThread.stop();// 停止服务器线程
-
-            for (int i = clients.size() - 1; i >= 0; i--) {
+                serverThread.interrupt();// 停止服务器线程
+            for (int i =0; i<clients.size(); i++) {
                 // 给所有在线用户发送关闭命令
                 clients.get(i).getWriter().println("CLOSE");
                 clients.get(i).getWriter().flush();
@@ -195,6 +196,22 @@ public class creatServer {
             e.printStackTrace();
             isStart = true;
         }
+    }
+    //转发给其他所有人
+    private void sendToOther(String message) {
+        StringTokenizer stringTokenizer = new StringTokenizer(message, "@");
+        String source = stringTokenizer.nextToken();
+        String owner = stringTokenizer.nextToken();
+        String content = stringTokenizer.nextToken();
+        message = source + "said：" + content;
+        contentArea.append(message + "\r\n");
+        if (owner.equals("ALL")) {// 群发
+            for (int i = clients.size() - 1; i >= 0; i--) {
+                clients.get(i).getWriter().println(message + "(to all)");
+                clients.get(i).getWriter().flush();
+            }
+        }
+
     }
     // 执行消息发送
     public void send() {
@@ -245,7 +262,7 @@ public class creatServer {
                         socket.close();
                         continue;
                     }
-                    clientThread client=new clientThread(socket);
+                    clientThread client=new clientThread(socket);//创建该用户的服务线程
                     client.start();
                     clients.add(client);
                     listModel.addElement(client.getUser().getName());
@@ -306,8 +323,7 @@ public class creatServer {
                 try{//接收客户端消息
                     message=reader.readLine();
                     if(message.equals("CLOSE")){
-                        contentArea.append(this.user.getName()+"offline!\r\n");
-                        //释放资源
+                        contentArea.append(this.user.getName()+" offline!\r\n");
                         reader.close();
                         writer.close();
                         socket.close();
@@ -316,6 +332,8 @@ public class creatServer {
                             clients.get(i).getWriter().println("DELETE@"+user.getName());
                             clients.get(i).getWriter().flush();
                         }
+                        //更新在线列表
+                        listModel.removeElement(user.getName());
                         //清除此线程
                         for(int i=0;i<clients.size();i++){
                             if (clients.get(i).getUser() == user) {
@@ -325,8 +343,7 @@ public class creatServer {
                                 return;
                             }
                         }
-                        //更新在线列表
-                        listModel.removeElement(user.getName());
+
                     }
                     else{
                         sendToOther(message);
@@ -336,22 +353,6 @@ public class creatServer {
                 }
             }
         }
-    }
-    //转发给其他所有人
-    private void sendToOther(String message) {
-        StringTokenizer stringTokenizer = new StringTokenizer(message, "@");
-        String source = stringTokenizer.nextToken();
-        String owner = stringTokenizer.nextToken();
-        String content = stringTokenizer.nextToken();
-        message = source + "said：" + content;
-        contentArea.append(message + "\r\n");
-        if (owner.equals("ALL")) {// 群发
-            for (int i = clients.size() - 1; i >= 0; i--) {
-                clients.get(i).getWriter().println(message + "(to all)");
-                clients.get(i).getWriter().flush();
-            }
-        }
-
     }
 }
 
