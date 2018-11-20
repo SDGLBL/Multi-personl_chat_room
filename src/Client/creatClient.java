@@ -201,6 +201,10 @@ public class creatClient {
             }
         });
     }
+    //移动光标
+    public void moveLight(){
+        contentArea.setCaretPosition(contentArea.getText().length());
+    }
     /*连接*/
     public void send() {
         if (!isConnected) {
@@ -313,6 +317,7 @@ public class creatClient {
                         return;// 结束线程
                     } else {// 普通消息
                         contentArea.append(message + "\r\n");
+                        moveLight();
                     }
                     } catch (IOException e) {
                     e.printStackTrace();
