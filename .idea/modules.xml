@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Multi-person chat room.iml" filepath="$PROJECT_DIR$/Multi-person chat room.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../ Multi-person chat room Server/Multi-person chat room Server.iml" filepath="$PROJECT_DIR$/../ Multi-person chat room Server/Multi-person chat room Server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Multi-person chat room server/Multi-person chat room server.iml" filepath="$PROJECT_DIR$/../Multi-person chat room server/Multi-person chat room server.iml" />
     </modules>
   </component>
 </project>

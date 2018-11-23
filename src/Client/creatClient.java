@@ -1,6 +1,5 @@
 package Client;
 
-import Server.creatServer;
 import User.User;
 import basicInfo.Info;
 
@@ -312,10 +311,18 @@ public class creatClient {
                     } else if (command.equals("MAX")) {// 人数已达上限
                         contentArea.append(stringTokenizer.nextToken() + "\r\n");
                         closGet();// 被动的关闭连接
-                        JOptionPane.showMessageDialog(frame, "服务器已满！", "错误",
+                        JOptionPane.showMessageDialog(frame, "服务器已满！", "通知",
                                 JOptionPane.ERROR_MESSAGE);
                         return;// 结束线程
-                    } else {// 普通消息
+                    }
+                    else if(command.equals("TICK")){//被踢了
+                        contentArea.append("你已被服务器T掉。");
+                        closeConnection();//主动关闭
+                        JOptionPane.showMessageDialog(frame, "你已经被服务器T掉", "通知",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;//结束进程
+                    }
+                        else {// 普通消息
                         contentArea.append(message + "\r\n");
                         moveLight();
                     }
