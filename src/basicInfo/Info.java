@@ -1,6 +1,6 @@
 package basicInfo;
 
-public class Info { //信息转发类
+public class Info { //信息传递类
     private String ip;
     private String port;
     private String name;

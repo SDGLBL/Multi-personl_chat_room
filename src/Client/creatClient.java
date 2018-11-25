@@ -317,9 +317,10 @@ public class creatClient {
                     }
                     else if(command.equals("TICK")){//被踢了
                         contentArea.append("你已被服务器T掉。");
-                        closeConnection();//主动关闭
                         JOptionPane.showMessageDialog(frame, "你已经被服务器T掉", "通知",
                                 JOptionPane.ERROR_MESSAGE);
+                        isConnected=false;
+                        closeConnection();//主动关闭
                         return;//结束进程
                     }
                         else {// 普通消息
